@@ -221,12 +221,61 @@ app.delete('/api/v1/content', userMiddleware, async (req, res)=>{
     }
 })
 
-app.post('/api/v1/brain/share', (req, res)=>{
-
+app.post('/api/v1/brain/share', userMiddleware,async (req, res)=>{
+    const userId = req.userId;
+    try{
+        await UserModel.updateOne({ _id: userId }, {
+            share: true
+        })
+        res.json({
+            message: "you can now share your contents", 
+            shareableLink: `http://localhost:3000/api/v1/brain/${userId}`
+        })
+    }
+    catch(e){
+        res.status(500).json({
+            message: "Error enabling the share for this user", 
+            error: e
+        })
+    }
 })
 
-app.get('/api/v1/brain/:shareLink', (req, res)=>{
+app.get('/api/v1/brain/:shareLink',async (req, res)=>{
+    const shareableUserId = req.params.shareLink;
+    try{
+        const isUserPresent = await UserModel.findOne({
+            _id: shareableUserId
+        })
 
+        if(!isUserPresent){
+            res.status(403).json({
+                message: "This user is not present"
+            })
+            return;
+        }
+        if(isUserPresent.share == false){
+            res.status(403).json({
+                message: "You are not authorized to see this contents"
+            })
+            return;
+        }
+
+        const contents = await ContentModel.find({
+            userId: shareableUserId
+        }).populate("userId", "username")
+        .populate('tags', 'title');
+        
+        res.json({
+            message: "content found", 
+            contents: contents
+        })
+    }
+    catch(e){
+        res.status(500).json({
+            message: "Error opening the link", 
+            error: e
+        })
+    }
 })
 
 

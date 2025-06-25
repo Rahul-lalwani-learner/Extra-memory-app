@@ -1,9 +1,11 @@
 import mongoose, { model, Schema } from "mongoose";
+import { boolean } from "zod";
 const schema = mongoose.Schema; 
 
 const userSchema = new Schema({
     username: {type: String, require: true, unique: true}, 
     password: {type: String, require: true}, 
+    share: {type: Boolean , default: false}
 })
 
 

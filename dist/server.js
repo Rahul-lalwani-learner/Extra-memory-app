@@ -191,10 +191,58 @@ app.delete('/api/v1/content', middleware_1.userMiddleware, (req, res) => __await
         });
     }
 }));
-app.post('/api/v1/brain/share', (req, res) => {
-});
-app.get('/api/v1/brain/:shareLink', (req, res) => {
-});
+app.post('/api/v1/brain/share', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    try {
+        yield db_1.UserModel.updateOne({ _id: userId }, {
+            share: true
+        });
+        res.json({
+            message: "you can now share your contents",
+            shareableLink: `http://localhost:3000/api/v1/brain/${userId}`
+        });
+    }
+    catch (e) {
+        res.status(500).json({
+            message: "Error enabling the share for this user",
+            error: e
+        });
+    }
+}));
+app.get('/api/v1/brain/:shareLink', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const shareableUserId = req.params.shareLink;
+    try {
+        const isUserPresent = yield db_1.UserModel.findOne({
+            _id: shareableUserId
+        });
+        if (!isUserPresent) {
+            res.status(403).json({
+                message: "This user is not present"
+            });
+            return;
+        }
+        if (isUserPresent.share == false) {
+            res.status(403).json({
+                message: "You are not authorized to see this contents"
+            });
+            return;
+        }
+        const contents = yield db_1.ContentModel.find({
+            userId: shareableUserId
+        }).populate("userId", "username")
+            .populate('tags', 'title');
+        res.json({
+            message: "content found",
+            contents: contents
+        });
+    }
+    catch (e) {
+        res.status(500).json({
+            message: "Error opening the link",
+            error: e
+        });
+    }
+}));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield mongoose_1.default.connect(process.env.DATABASE_CONNECTION_STRING + "extra-memory");

@@ -39,6 +39,7 @@ const schema = mongoose_1.default.Schema;
 const userSchema = new mongoose_1.Schema({
     username: { type: String, require: true, unique: true },
     password: { type: String, require: true },
+    share: { type: Boolean, default: false }
 });
 const contentTypes = ['image', 'video', 'article', 'audio'];
 const contentSchema = new mongoose_1.Schema({
