@@ -12,8 +12,8 @@ const contentSchema = new Schema({
     link: String, 
     type: {type: String, enum: contentTypes, require: true}, 
     title: {type: String, require: true}, 
-    tags: [{type: mongoose.Types.ObjectId, ref: 'Tag'}], 
-    userId: {type: mongoose.Types.ObjectId, ref: 'User', require: true}
+    tags: [{type: mongoose.Types.ObjectId, ref: 'tags'}], 
+    userId: {type: mongoose.Types.ObjectId, ref: 'users', require: true}
 }); 
 
 const tagSchema = new Schema({
@@ -22,7 +22,7 @@ const tagSchema = new Schema({
 
 const linkSchema = new Schema({
     hash: {type: String, require: true}, 
-    userId: {type: mongoose.Types.ObjectId, ref: 'User', require: true}
+    userId: {type: mongoose.Types.ObjectId, ref: 'users', require: true}
 });
 
 

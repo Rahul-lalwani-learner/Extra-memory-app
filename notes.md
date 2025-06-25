@@ -42,3 +42,56 @@ there are 2 ways
         "dev": "npm run build && npm run start"
     }
 `npm run dev`
+
+------------------
+## Reference used 
+    const contents = await ContentModel.find({
+                userId: userId
+            }).populate("userId", "username")
+            .populate('tags', 'title');
+
+    
+for this you will get populated values from different collection without quering `power of realtionships` in mongo db
+
+    {
+        "contents": [
+            {
+                "_id": "685b9e2c63ede1cea5180a2b",
+                "link": "https://somerandomlink",
+                "type": "article",
+                "title": "some sample content",
+                "tags": [
+                    {
+                        "_id": "685b9e107b907e561ff4b26c",
+                        "title": "learning"
+                    },
+                    {
+                        "_id": "685b9dea7b907e561ff4b26b",
+                        "title": "productivity"
+                    }
+                ],
+                "userId": {
+                    "_id": "685b8568bbae066198862881",
+                    "username": "Rajesh"
+                },
+                "__v": 0
+            },
+            {
+                "_id": "685b9e5b63ede1cea5180a2d",
+                "link": "https://somerandomlink",
+                "type": "video",
+                "title": "special content",
+                "tags": [
+                    {
+                        "_id": "685b9e107b907e561ff4b26c",
+                        "title": "learning"
+                    }
+                ],
+                "userId": {
+                    "_id": "685b8568bbae066198862881",
+                    "username": "Rajesh"
+                },
+                "__v": 0
+            }
+        ]
+    }

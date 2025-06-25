@@ -8,6 +8,15 @@ import bcrpyt from "bcrypt";
 import z from "zod";
 import { userMiddleware } from "./middleware";
 
+// Extend Express Request interface to include userId
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+    }
+  }
+}
+
 
 
 dotenv.config();
@@ -128,18 +137,88 @@ app.post('/api/v1/signin', async (req, res)=>{
 })
 
 
-app.post('/api/v1/content', userMiddleware, (req, res)=>{
-    res.json({
-        message: "done"
-    })
+app.post('/api/v1/content', userMiddleware, async (req, res)=>{
+    const userId = req.userId;
+    const {link, title, type, tags} = req.body;
+
+    try{
+        await ContentModel.create({
+            link: link, 
+            title: title, 
+            type: type, 
+            userId: userId, 
+            tags: tags
+        })
+
+        res.json({
+            message: "done", 
+            userId: userId
+        })
+    }
+    catch(e){
+        res.status(500).json({
+            message: "Some Error while adding data", 
+            error: e
+        })
+    }
 })
 
-app.get('/api/v1/content', (req, res)=>{
+app.get('/api/v1/content', userMiddleware,async (req, res)=>{
+    const userId = req.userId; 
+    try{
+        const contents = await ContentModel.find({
+            userId: userId
+        }).populate("userId", "username")
+        .populate('tags', 'title');
+
+        if(!contents){
+            res.status(403).json({
+                message: "No Content"
+            })
+        }
+        else{
+            res.json({
+                contents : contents
+            })
+        }
+    }
+    catch(e){
+        res.status(500).json({
+            message: "some Error in server", 
+            error: e
+        })
+    }
 
 })
 
-app.delete('/api/v1/content', (req, res)=>{
+app.delete('/api/v1/content', userMiddleware, async (req, res)=>{
+    const userId = req.userId; 
+    const {contentId} = req.body;
+    try{
 
+        const content = await ContentModel.findOne({
+            _id : contentId
+        })
+
+        if(!content){
+            res.status(403).json({
+                message: "Content with this contentId not present"
+            })
+            return;
+        }
+        await ContentModel.deleteOne({
+            _id: contentId
+        })
+        res.json({
+            message: "Content deleted"
+        })
+    }
+    catch(e){
+        res.status(500).json({
+            message: "Error deleting Content", 
+            error: e
+        })
+    }
 })
 
 app.post('/api/v1/brain/share', (req, res)=>{

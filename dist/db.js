@@ -45,15 +45,15 @@ const contentSchema = new mongoose_1.Schema({
     link: String,
     type: { type: String, enum: contentTypes, require: true },
     title: { type: String, require: true },
-    tags: [{ type: mongoose_1.default.Types.ObjectId, ref: 'Tag' }],
-    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'User', require: true }
+    tags: [{ type: mongoose_1.default.Types.ObjectId, ref: 'tags' }],
+    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'users', require: true }
 });
 const tagSchema = new mongoose_1.Schema({
     title: { type: String, require: true, unique: true }
 });
 const linkSchema = new mongoose_1.Schema({
     hash: { type: String, require: true },
-    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'User', require: true }
+    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'users', require: true }
 });
 exports.UserModel = mongoose_1.default.model('users', userSchema);
 exports.LinkModel = mongoose_1.default.model('links', linkSchema);
