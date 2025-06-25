@@ -98,3 +98,13 @@ for this you will get populated values from different collection without quering
 
 ----------------------
 I have implemeted the sharing functionallity differently where i am changing the share property in schema of the user as true or false and not using the LinkSchema to save all the links set as true only because i think creating one more schema is not worth this task of enabling sharing feature also this make this one less Backend all to make things easier
+
+
+## Creating backend
+Currently we are creating different folders for frontEnd and Backend 
+> Eventually w'll learn about the monorepos where we can have both Backend and frontend together 
+`for now we are creating the backend in different directory`
+1. npm create vite@latest
+    react -> typescript
+2. cd project name
+3. npm install 
