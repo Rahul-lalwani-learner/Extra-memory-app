@@ -22,15 +22,15 @@ const tagSchema = new Schema({
     title: {type: String, require: true, unique: true}
 }); 
 
-const linkSchema = new Schema({
-    hash: {type: String, require: true}, 
-    userId: {type: mongoose.Types.ObjectId, ref: 'users', require: true}
-});
+// const linkSchema = new Schema({
+//     hash: {type: String, require: true}, 
+//     userId: {type: mongoose.Types.ObjectId, ref: 'users', require: true}
+// });
 
 
 
 export const UserModel = mongoose.model('users', userSchema); 
-export const LinkModel = mongoose.model('links', linkSchema); 
+// export const LinkModel = mongoose.model('links', linkSchema); 
 export const TagModel = mongoose.model('tags', tagSchema); 
 export const ContentModel = mongoose.model('contents', contentSchema); 
 

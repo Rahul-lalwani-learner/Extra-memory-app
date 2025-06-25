@@ -191,6 +191,22 @@ app.delete('/api/v1/content', middleware_1.userMiddleware, (req, res) => __await
         });
     }
 }));
+app.post("/api/v1/addtag", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { title } = req.body;
+    try {
+        yield db_1.TagModel.create({
+            title: title
+        });
+        res.json({
+            message: `${title} tag is added`
+        });
+    }
+    catch (e) {
+        res.status(500).json({
+            message: "Error adding " + title + " Tag to server"
+        });
+    }
+}));
 app.post('/api/v1/brain/share', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.userId;
     try {
@@ -205,6 +221,23 @@ app.post('/api/v1/brain/share', middleware_1.userMiddleware, (req, res) => __awa
     catch (e) {
         res.status(500).json({
             message: "Error enabling the share for this user",
+            error: e
+        });
+    }
+}));
+app.put('/api/v1/brain/share', middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    try {
+        yield db_1.UserModel.updateOne({ _id: userId }, {
+            share: false
+        });
+        res.json({
+            message: "Content Sharing is closed"
+        });
+    }
+    catch (e) {
+        res.status(500).json({
+            message: "Error disabling content sharing",
             error: e
         });
     }

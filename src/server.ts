@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken"; 
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser"; 
-import {UserModel, LinkModel, TagModel, ContentModel} from "./db"
+import {UserModel, TagModel, ContentModel} from "./db"
 import bcrpyt from "bcrypt"; 
 import z from "zod";
 import { userMiddleware } from "./middleware";
@@ -221,6 +221,23 @@ app.delete('/api/v1/content', userMiddleware, async (req, res)=>{
     }
 })
 
+app.post("/api/v1/addtag", userMiddleware, async (req, res)=>{
+    const {title}  = req.body; 
+
+    try{
+        await TagModel.create({
+            title: title
+        })
+        res.json({
+            message: `${title} tag is added`
+        })
+    }catch(e){ 
+        res.status(500).json({
+            message: "Error adding "+title+" Tag to server"
+        })
+    }
+})
+
 app.post('/api/v1/brain/share', userMiddleware,async (req, res)=>{
     const userId = req.userId;
     try{
@@ -235,6 +252,24 @@ app.post('/api/v1/brain/share', userMiddleware,async (req, res)=>{
     catch(e){
         res.status(500).json({
             message: "Error enabling the share for this user", 
+            error: e
+        })
+    }
+})
+
+app.put('/api/v1/brain/share', userMiddleware,async (req, res)=>{
+    const userId = req.userId;
+    try{
+        await UserModel.updateOne({ _id: userId }, {
+            share: false
+        })
+        res.json({
+            message: "Content Sharing is closed"
+        })
+    }
+    catch(e){
+        res.status(500).json({
+            message: "Error disabling content sharing", 
             error: e
         })
     }

@@ -95,3 +95,6 @@ for this you will get populated values from different collection without quering
             }
         ]
     }
+
+----------------------
+I have implemeted the sharing functionallity differently where i am changing the share property in schema of the user as true or false and not using the LinkSchema to save all the links set as true only because i think creating one more schema is not worth this task of enabling sharing feature also this make this one less Backend all to make things easier
