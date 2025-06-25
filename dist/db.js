@@ -55,11 +55,7 @@ const linkSchema = new mongoose_1.Schema({
     hash: { type: String, require: true },
     userId: { type: mongoose_1.default.Types.ObjectId, ref: 'User', require: true }
 });
-const UserModel = mongoose_1.default.model('users', userSchema);
-exports.UserModel = UserModel;
-const LinkModel = mongoose_1.default.model('links', linkSchema);
-exports.LinkModel = LinkModel;
-const TagModel = mongoose_1.default.model('tags', tagSchema);
-exports.TagModel = TagModel;
-const ContentModel = mongoose_1.default.model('contents', contentSchema);
-exports.ContentModel = ContentModel;
+exports.UserModel = mongoose_1.default.model('users', userSchema);
+exports.LinkModel = mongoose_1.default.model('links', linkSchema);
+exports.TagModel = mongoose_1.default.model('tags', tagSchema);
+exports.ContentModel = mongoose_1.default.model('contents', contentSchema);

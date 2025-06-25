@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import {UserModel, LinkModel, TagModel, ContentModel} from "./db"
 import bcrpyt from "bcrypt"; 
 import z from "zod";
+import { userMiddleware } from "./middleware";
+
 
 
 dotenv.config();
@@ -125,8 +127,11 @@ app.post('/api/v1/signin', async (req, res)=>{
     }
 })
 
-app.post('/api/v1/content', (req, res)=>{
 
+app.post('/api/v1/content', userMiddleware, (req, res)=>{
+    res.json({
+        message: "done"
+    })
 })
 
 app.get('/api/v1/content', (req, res)=>{

@@ -33,3 +33,12 @@ now for this enriching how will you find the relevant document or statement to a
 there are 2 ways 
 1. using some kind of search algorithms or libary like `elastic search` or `eiboiya`, where you dump your data to it and you search your queries using this 
 2. `Vector databases and embedding` where you convert all the databased into vector embedding and then you convert your query into the vector and the identify the distance from all the vector and identify the closest now, theoritically this closest vectors will have the most relveant information and then you give your query the text of those vectors and this is how you enrich your query 
+
+-----------------
+## DEV run
+    "scripts": {
+        "build": "tsc -b", 
+        "start": "node ./dist/server.js",
+        "dev": "npm run build && npm run start"
+    }
+`npm run dev`

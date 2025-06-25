@@ -20,6 +20,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const db_1 = require("./db");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const zod_1 = __importDefault(require("zod"));
+const middleware_1 = require("./middleware");
 dotenv_1.default.config();
 const port = 3000;
 const app = (0, express_1.default)();
@@ -88,7 +89,7 @@ app.post('/api/v1/signin', (req, res) => __awaiter(void 0, void 0, void 0, funct
         username: username
     });
     if (!user) {
-        res.json({
+        res.status(403).json({
             message: "User not found",
         });
         return;
@@ -115,7 +116,10 @@ app.post('/api/v1/signin', (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
     }
 }));
-app.post('/api/v1/content', (req, res) => {
+app.post('/api/v1/content', middleware_1.userMiddleware, (req, res) => {
+    res.json({
+        message: "done"
+    });
 });
 app.get('/api/v1/content', (req, res) => {
 });
