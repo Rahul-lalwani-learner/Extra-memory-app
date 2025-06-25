@@ -1,5 +1,4 @@
 import mongoose, { model, Schema } from "mongoose";
-import { ModuleResolutionKind } from "typescript";
 const schema = mongoose.Schema; 
 
 const userSchema = new Schema({
@@ -33,7 +32,7 @@ const LinkModel = mongoose.model('links', linkSchema);
 const TagModel = mongoose.model('tags', tagSchema); 
 const ContentModel = mongoose.model('contents', contentSchema); 
 
-module.exports = {
+export {
     UserModel, 
     LinkModel, 
     TagModel, 
