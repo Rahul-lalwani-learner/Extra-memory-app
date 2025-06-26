@@ -9,7 +9,8 @@ const userSchema = new Schema({
 })
 
 
-const contentTypes = ['image', 'video', 'article', 'audio', 'link']; 
+const contentTypes = ['image', 'video', 'link', 'audio', 'text']; 
+
 const contentSchema = new Schema({
     link: String, 
     type: {type: String, enum: contentTypes, require: true}, 
