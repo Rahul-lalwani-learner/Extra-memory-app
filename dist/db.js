@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ContentModel = exports.TagModel = exports.LinkModel = exports.UserModel = void 0;
+exports.ContentModel = exports.TagModel = exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const schema = mongoose_1.default.Schema;
 const userSchema = new mongoose_1.Schema({
@@ -41,7 +41,7 @@ const userSchema = new mongoose_1.Schema({
     password: { type: String, require: true },
     share: { type: Boolean, default: false }
 });
-const contentTypes = ['image', 'video', 'article', 'audio'];
+const contentTypes = ['image', 'video', 'link', 'audio', 'text'];
 const contentSchema = new mongoose_1.Schema({
     link: String,
     type: { type: String, enum: contentTypes, require: true },
@@ -52,11 +52,11 @@ const contentSchema = new mongoose_1.Schema({
 const tagSchema = new mongoose_1.Schema({
     title: { type: String, require: true, unique: true }
 });
-const linkSchema = new mongoose_1.Schema({
-    hash: { type: String, require: true },
-    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'users', require: true }
-});
+// const linkSchema = new Schema({
+//     hash: {type: String, require: true}, 
+//     userId: {type: mongoose.Types.ObjectId, ref: 'users', require: true}
+// });
 exports.UserModel = mongoose_1.default.model('users', userSchema);
-exports.LinkModel = mongoose_1.default.model('links', linkSchema);
+// export const LinkModel = mongoose.model('links', linkSchema); 
 exports.TagModel = mongoose_1.default.model('tags', tagSchema);
 exports.ContentModel = mongoose_1.default.model('contents', contentSchema);

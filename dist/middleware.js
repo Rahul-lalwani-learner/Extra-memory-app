@@ -8,8 +8,18 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 function userMiddleware(req, res, next) {
-    const token = req.cookies.token;
+    // console.log('Authorization header:', req.headers.authorization);
+    // Get token from Authorization header
+    let token = null;
+    if (req.headers.authorization) {
+        const authHeader = req.headers.authorization;
+        if (authHeader.startsWith('Bearer ')) {
+            token = authHeader.substring(7); // Remove 'Bearer ' prefix
+        }
+    }
+    // console.log('Token found:', token ? token.substring(0, 20) + '...' : 'No token');
     if (!token) {
+        console.log('No token found in authorization header');
         res.status(403).json({
             message: "You are not signed In"
         });

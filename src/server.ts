@@ -7,6 +7,7 @@ import {UserModel, TagModel, ContentModel} from "./db"
 import bcrpyt from "bcrypt"; 
 import z from "zod";
 import { userMiddleware } from "./middleware";
+import cors from 'cors'
 
 // Extend Express Request interface to include userId
 declare global {
@@ -24,8 +25,17 @@ const port = 3000;
 
 
 const app = express(); 
+
+app.use(cors({
+    origin: 'http://localhost:5173', // Your frontend URL (default Vite port)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json()); 
 app.use(cookieParser());
+
+
 
 const reqBodySchema = z.object({
     username: z.string().min(3).max(10), 
@@ -119,18 +129,16 @@ app.post('/api/v1/signin', async (req, res)=>{
             process.env.JWT_SECRET
         );
         
-        res.cookie('token', token, {
-            httpOnly: true, 
-            secure: true, 
-            sameSite: 'strict'
-        }); 
+        // console.log('Generated token:', token.substring(0, 20) + '...');
+        // console.log('Full token length:', token.length);
 
         res.json({
-            message: "Signed In"
+            message: "Signed In",
+            token: token // Send token in response for localStorage storage
         })
     }
     else{
-        res.status(403).json({
+        res.status(404).json({
             message: "Invalid Credentials"
         })
     }
@@ -142,20 +150,36 @@ app.post('/api/v1/content', userMiddleware, async (req, res)=>{
     const {link, title, type, tags} = req.body;
 
     try{
+        // Process tags: find existing ones or create new ones
+        const tagIds = [];
+        if (tags && Array.isArray(tags)) {
+            for (const tagName of tags) {
+                if (typeof tagName === 'string' && tagName.trim()) {
+                    // Try to find existing tag or create new one
+                    let tag = await TagModel.findOne({ title: tagName.trim() });
+                    if (!tag) {
+                        tag = await TagModel.create({ title: tagName.trim() });
+                    }
+                    tagIds.push(tag._id);
+                }
+            }
+        }
+
         await ContentModel.create({
             link: link, 
             title: title, 
             type: type, 
             userId: userId, 
-            tags: tags
+            tags: tagIds
         })
 
         res.json({
-            message: "done", 
+            message: "Content added successfully", 
             userId: userId
         })
     }
     catch(e){
+        console.error('Error adding content:', e);
         res.status(500).json({
             message: "Some Error while adding data", 
             error: e
@@ -195,25 +219,47 @@ app.delete('/api/v1/content', userMiddleware, async (req, res)=>{
     const userId = req.userId; 
     const {contentId} = req.body;
     try{
-
         const content = await ContentModel.findOne({
-            _id : contentId
+            _id : contentId,
+            userId: userId // Ensure user can only delete their own content
         })
 
         if(!content){
             res.status(403).json({
-                message: "Content with this contentId not present"
+                message: "Content with this contentId not present or you don't have permission to delete it"
             })
             return;
         }
+
+        // Store tag IDs before deleting content for cleanup
+        const tagIds = content.tags;
+
+        // Delete the content
         await ContentModel.deleteOne({
             _id: contentId
         })
+
+        // Clean up unused tags (tags that are no longer referenced by any content)
+        if (tagIds && tagIds.length > 0) {
+            for (const tagId of tagIds) {
+                // Check if this tag is still used by other content
+                const contentWithTag = await ContentModel.findOne({
+                    tags: tagId
+                });
+                
+                // If no other content uses this tag, delete it
+                if (!contentWithTag) {
+                    await TagModel.deleteOne({ _id: tagId });
+                }
+            }
+        }
+
         res.json({
-            message: "Content deleted"
+            message: "Content deleted successfully"
         })
     }
     catch(e){
+        console.error('Error deleting content:', e);
         res.status(500).json({
             message: "Error deleting Content", 
             error: e
@@ -246,7 +292,7 @@ app.post('/api/v1/brain/share', userMiddleware,async (req, res)=>{
         })
         res.json({
             message: "you can now share your contents", 
-            shareableLink: `http://localhost:3000/api/v1/brain/${userId}`
+            shareableLink: `${process.env.FRONTEND_URL}/api/v1/brain/${userId}`
         })
     }
     catch(e){
@@ -313,6 +359,26 @@ app.get('/api/v1/brain/:shareLink',async (req, res)=>{
     }
 })
 
+app.get('/api/v1/tags',userMiddleware, async (req, res) => {
+    try {
+        const tags = await TagModel.find({}).select('title -_id');
+        
+        // Extract just the tag names
+        const tagNames = tags.map(tag => tag.title);
+        
+        res.json({
+            message: "Tags retrieved successfully",
+            tags: tagNames
+        });
+    } catch (e) {
+        console.error('Error fetching tags:', e);
+        res.status(500).json({
+            message: "Error fetching tags from server",
+            error: e
+        });
+    }
+});
+
 
 async function main(){
     await mongoose.connect(process.env.DATABASE_CONNECTION_STRING + "extra-memory")
@@ -321,4 +387,4 @@ async function main(){
     })
 }
 
-main(); 
+main();
