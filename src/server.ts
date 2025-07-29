@@ -29,7 +29,8 @@ const app = express();
 app.use(cors({
     origin: [
         'http://localhost:5173', // Local development
-        'https://extra-memory-front-end.vercel.app', // Production frontend
+        'https://extra-memory-front-end.vercel.app',
+        "https://extramemory.rahullalwani.com/", // Production frontend
         process.env.FRONTEND_URL
     ].filter((origin): origin is string => Boolean(origin)), // Type-safe filter to remove undefined values
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
