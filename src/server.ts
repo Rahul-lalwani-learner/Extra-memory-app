@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser"; 
 import {UserModel, TagModel, ContentModel} from "./db"
-import bcrpyt from "bcrypt"; 
+import bcrypt from "bcrypt"; 
 import z from "zod";
 import { userMiddleware } from "./middleware";
 import cors from 'cors'
@@ -27,9 +27,14 @@ const port = process.env.PORT || 3000;
 const app = express(); 
 
 app.use(cors({
-    origin: `${process.env.FRONTEND_URL}`, // Your frontend URL (default Vite port)
+    origin: [
+        'http://localhost:5173', // Local development
+        'https://extra-memory-front-end.vercel.app', // Production frontend
+        process.env.FRONTEND_URL
+    ].filter((origin): origin is string => Boolean(origin)), // Type-safe filter to remove undefined values
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true // Allow cookies if needed
 }));
 
 app.use(express.json()); 
@@ -63,7 +68,7 @@ app.post('/api/v1/signup',async (req, res)=>{
     const {username, password}: z.infer<typeof reqBodySchema> = req.body; 
 
     try{
-        let hasedPassword = await bcrpyt.hash(password, 5); 
+        let hasedPassword = await bcrypt.hash(password, 5); 
 
         try{
             await UserModel.create({
@@ -117,7 +122,7 @@ app.post('/api/v1/signin', async (req, res)=>{
         })
         return;
     }
-    const match = await bcrpyt.compare(password, user.password);
+    const match = await bcrypt.compare(password, user.password);
     
     if(match){
         if (!process.env.JWT_SECRET) {
@@ -292,7 +297,7 @@ app.post('/api/v1/brain/share', userMiddleware,async (req, res)=>{
         })
         res.json({
             message: "you can now share your contents", 
-            shareableLink: `${process.env.FRONTEND_URL}/api/v1/brain/${userId}`
+            shareableLink: `${process.env.FRONTEND_URL}/brain/${userId}`
         })
     }
     catch(e){
@@ -381,10 +386,17 @@ app.get('/api/v1/tags',userMiddleware, async (req, res) => {
 
 
 async function main(){
-    await mongoose.connect(process.env.DATABASE_CONNECTION_STRING + "extra-memory")
-    app.listen(port, ()=>{
-        console.log(`http://localhost:${port}/`)
-    })
+    try {
+        await mongoose.connect(process.env.DATABASE_CONNECTION_STRING + "extra-memory")
+        console.log("Connected to MongoDB successfully");
+        
+        app.listen(port, ()=>{
+            console.log(`Server running at http://localhost:${port}/`)
+        })
+    } catch (error) {
+        console.error("Failed to connect to MongoDB:", error);
+        process.exit(1);
+    }
 }
 
 main();
