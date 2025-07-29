@@ -27,7 +27,7 @@ const port = 3000;
 const app = express(); 
 
 app.use(cors({
-    origin: 'http://localhost:5173', // Your frontend URL (default Vite port)
+    origin: `${process.env.FRONTEND_URL}`, // Your frontend URL (default Vite port)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
