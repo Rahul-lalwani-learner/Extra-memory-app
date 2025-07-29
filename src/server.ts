@@ -326,7 +326,7 @@ app.put('/api/v1/brain/share', userMiddleware,async (req, res)=>{
     }
 })
 
-app.get('/api/v1/brain/:shareLink',async (req, res)=>{
+app.get('/brain/:shareLink',async (req, res)=>{
     const shareableUserId = req.params.shareLink;
     try{
         const isUserPresent = await UserModel.findOne({
